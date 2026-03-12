@@ -65,7 +65,7 @@ function App() {
             <h3>{plan.name}</h3>
             <p>{plan.description}</p>
             <p>Credits: {plan.credits}</p>
-            <p>Validity: {plan.validityDays || "Unlimited"}</p>
+            <p>Validity: {plan.validityDays || "unlimited"}</p>
             <p className="plan-price">₹{plan.price}</p>
 
             <button onClick={() => handleBuyPlan(plan)} className="buy-btn">
