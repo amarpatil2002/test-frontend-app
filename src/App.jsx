@@ -10,7 +10,7 @@ function App() {
 
   const startPayment = async (sessionId) => {
     const cashfree = await load({
-      mode: "sandbox",
+      mode: "production",
     });
 
     cashfree.checkout({
