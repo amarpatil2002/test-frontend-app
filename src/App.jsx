@@ -1,30 +1,55 @@
-import { useEffect } from "react";
-import "./App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { load } from "@cashfreepayments/cashfree-js";
+import "./App.css";
 
 const BACKEND_URL = "https://payment-gatway-1.onrender.com";
 
 function App() {
-  const [plan, setPlan] = useState([]);
+  const [plans, setPlans] = useState([]);
 
-  const startPayment = async (sessionId) => {
-    const cashfree = await load({
-      mode: "production",
-    });
+  // Load Cashfree only once
+  const cashfreePromise = load({
+    mode: "production",
+  });
 
-    cashfree.checkout({
-      paymentSessionId: sessionId,
-      redirectTarget: "_modal",
-    });
-  };
+  /* ---------- FETCH PLANS ---------- */
 
   const fetchPlans = async () => {
-    const response = await fetch(`${BACKEND_URL}/api/all-plans`);
-    const res = await response.json();
-    console.log(res.data.plans);
-    setPlan(res.data.plans);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/all-plans`);
+      const data = await response.json();
+
+      console.log("Plans:", data);
+
+      setPlans(data.data.plans);
+    } catch (error) {
+      console.error("Fetch plans error:", error);
+    }
   };
+
+  /* ---------- START PAYMENT ---------- */
+
+  const startPayment = async (sessionId) => {
+    try {
+      if (!sessionId) {
+        console.error("Invalid payment session id");
+        return;
+      }
+
+      const cashfree = await cashfreePromise;
+
+      const checkoutOptions = {
+        paymentSessionId: sessionId,
+        redirectTarget: "_self",
+      };
+
+      cashfree.checkout(checkoutOptions);
+    } catch (error) {
+      console.error("Checkout error:", error);
+    }
+  };
+
+  /* ---------- BUY PLAN ---------- */
 
   const handleBuyPlan = async (plan) => {
     try {
@@ -41,40 +66,53 @@ function App() {
       });
 
       const data = await response.json();
-      console.log(data);
+
+      console.log("Create order response:", data);
+
       if (data.success) {
-        startPayment(data.paymentSessionId);
+        const sessionId = data.paymentSessionId;
+
+        console.log("Session ID:", sessionId);
+
+        startPayment(sessionId);
+      } else {
+        console.error("Order creation failed");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Payment error:", error);
     }
   };
 
+  /* ---------- LOAD PLANS ---------- */
+
   useEffect(() => {
     fetchPlans();
-    console.log(plan);
   }, []);
 
   return (
-    <>
+    <div className="container">
       <h2>Payment Gateway Plans</h2>
 
       <div className="plan-container">
-        {plan.map((plan) => (
+        {plans.map((plan) => (
           <div className="plan-card" key={plan._id}>
             <h3>{plan.name}</h3>
+
             <p>{plan.description}</p>
+
             <p>Credits: {plan.credits}</p>
-            <p>Validity: {plan.validityDays || "unlimited"}</p>
+
+            <p>Validity: {plan.validityDays || "Unlimited"}</p>
+
             <p className="plan-price">₹{plan.price}</p>
 
-            <button onClick={() => handleBuyPlan(plan)} className="buy-btn">
+            <button className="buy-btn" onClick={() => handleBuyPlan(plan)}>
               Buy Plan
             </button>
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 
