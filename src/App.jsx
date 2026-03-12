@@ -12,8 +12,6 @@ function App() {
     mode: "production",
   });
 
-  /* ---------- FETCH PLANS ---------- */
-
   const fetchPlans = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/all-plans`);
@@ -82,8 +80,6 @@ function App() {
       console.error("Payment error:", error);
     }
   };
-
-  /* ---------- LOAD PLANS ---------- */
 
   useEffect(() => {
     fetchPlans();
