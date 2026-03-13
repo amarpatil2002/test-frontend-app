@@ -3,6 +3,7 @@ import { load } from "@cashfreepayments/cashfree-js";
 import "./App.css";
 
 const BACKEND_URL = "https://payment-gatway-1.onrender.com";
+// const BACKEND_URL = "http://localhost:5000";
 
 function App() {
   const [plans, setPlans] = useState([]);
@@ -30,7 +31,7 @@ function App() {
   const startPayment = async (sessionId) => {
     try {
       if (!sessionId) {
-        console.error("Invalid payment session id");
+        alert("Invalid payment session");
         return;
       }
 
@@ -41,9 +42,10 @@ function App() {
         redirectTarget: "_self",
       };
 
-      cashfree.checkout(checkoutOptions);
+      await cashfree.checkout(checkoutOptions);
     } catch (error) {
       console.error("Checkout error:", error);
+      alert("Unable to open payment gateway.");
     }
   };
 
@@ -64,18 +66,27 @@ function App() {
       });
 
       const data = await response.json();
+      console.log("Full API response:", data);
 
-      console.log("Create order response:", data);
-
-      if (data.success) {
-        const sessionId = data.paymentSessionId;
-
-        console.log("Session ID:", sessionId);
-
-        startPayment(sessionId);
-      } else {
-        console.error("Order creation failed");
+      if (!data.success) {
+        alert("Unable to start payment.");
+        return;
       }
+
+      // Get session id safely
+      const sessionId =
+        data.paymentSessionId ||
+        data.data?.paymentSessionId ||
+        data.payment_session_id;
+
+      if (!sessionId) {
+        alert("Payment session expired. Please try again.");
+        return;
+      }
+
+      console.log("Valid session:", sessionId);
+
+      startPayment(sessionId);
     } catch (error) {
       console.error("Payment error:", error);
     }

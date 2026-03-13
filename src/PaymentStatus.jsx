@@ -9,22 +9,37 @@ export default function PaymentStatus() {
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("order_id");
 
-    if (!orderId) return;
+    if (!orderId) {
+      setStatus("failed");
+      return;
+    }
 
-    fetch(`${BACKEND_URL}/api/status/${orderId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data.status === "success") {
+    const checkStatus = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/status/${orderId}`);
+        const data = await res.json();
+
+        console.log("Payment status:", data);
+
+        const paymentStatus = data?.data?.status;
+
+        if (paymentStatus === "SUCCESS" || paymentStatus === "success") {
           setStatus("success");
-        } else if (data.data.status === "failed") {
+        } else if (paymentStatus === "FAILED" || paymentStatus === "failed") {
           setStatus("failed");
         } else {
           setStatus("pending");
         }
-      });
+      } catch (err) {
+        console.error("Status check error:", err);
+        setStatus("failed");
+      }
+    };
+
+    checkStatus();
   }, []);
 
-  if (status === "loading") return <h2>Checking payment...</h2>;
+  if (status === "loading") return <h2>Checking payment status...</h2>;
   if (status === "success") return <h2>Payment Successful 🎉</h2>;
   if (status === "failed") return <h2>Payment Failed ❌</h2>;
 
