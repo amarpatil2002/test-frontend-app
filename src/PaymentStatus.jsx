@@ -14,7 +14,7 @@ export default function PaymentStatus() {
       return;
     }
 
-    const checkStatus = async () => {
+    const interval = setInterval(async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/status/${orderId}`);
         const data = await res.json();
@@ -23,20 +23,23 @@ export default function PaymentStatus() {
 
         const paymentStatus = data?.data?.status;
 
-        if (paymentStatus === "SUCCESS" || paymentStatus === "success") {
+        if (paymentStatus === "success" || paymentStatus === "SUCCESS") {
           setStatus("success");
-        } else if (paymentStatus === "FAILED" || paymentStatus === "failed") {
+          clearInterval(interval);
+        }
+
+        if (paymentStatus === "failed" || paymentStatus === "FAILED") {
           setStatus("failed");
-        } else {
-          setStatus("pending");
+          clearInterval(interval);
         }
       } catch (err) {
         console.error("Status check error:", err);
+        clearInterval(interval);
         setStatus("failed");
       }
-    };
+    }, 2000); // check every 2 seconds
 
-    checkStatus();
+    return () => clearInterval(interval);
   }, []);
 
   if (status === "loading") return <h2>Checking payment status...</h2>;
