@@ -46,5 +46,5 @@ export default function PaymentStatus() {
   if (status === "success") return <h2>Payment Successful 🎉</h2>;
   if (status === "failed") return <h2>Payment Failed ❌</h2>;
 
-  return <h2>Payment Processing...</h2>;
+  return <h2>Payment Processing.......</h2>;
 }
