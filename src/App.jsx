@@ -16,7 +16,9 @@ function App() {
 
   const fetchPlans = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/all-plans`);
+      const response = await fetch(
+        `${BACKEND_URL}/api/client/subscription/my-subscription`,
+      );
       const data = await response.json();
 
       console.log("Plans:", data);
@@ -54,17 +56,20 @@ function App() {
 
   const handleBuyPlan = async (plan) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/create-order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${BACKEND_URL}/api/client/payment/create-order`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            planId: plan._id,
+            userId: "69b0fd2df3bb7de5fb96dba2",
+            phone: "7666225895",
+          }),
         },
-        body: JSON.stringify({
-          planId: plan._id,
-          userId: "69b0fd2df3bb7de5fb96dba2",
-          phone: "7666225895",
-        }),
-      });
+      );
 
       const data = await response.json();
       console.log("Full API response:", data);
