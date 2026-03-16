@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { load } from "@cashfreepayments/cashfree-js";
 import "./App.css";
 
-const BACKEND_URL = "https://payment-gatway-1.onrender.com";
+const BACKEND_URL = "https://theserene.studio";
 // const BACKEND_URL = "http://localhost:5000";
 
 function App() {
